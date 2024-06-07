@@ -5,7 +5,7 @@ import path from 'path'
 import dotenv from 'dotenv'
 import cors from 'cors'
 
-import itemRoutes from './api/item/itemRoutes'
+import expenseRoutes from './api/expense/expenseRoutes'
 
 dotenv.config()
 
@@ -28,16 +28,17 @@ if (process.env.NODE_ENV === 'production') {
 } else {
   const corsOptions = {
     origin: [
-      'http://127.0.0.1:3000',
-      'http://localhost:3000',
       'http://localhost:5173/',
+      'http://127.0.0.1:5173/',
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
     ],
     credentials: true,
   }
   app.use(cors(corsOptions))
 }
 
-app.use('/api/item', itemRoutes)
+app.use('/api/expense', expenseRoutes)
 
 app.get('/**', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'))
