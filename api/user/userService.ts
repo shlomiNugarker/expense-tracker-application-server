@@ -2,59 +2,22 @@ import dbService from '../../services/dbService'
 const ObjectId = require('mongodb').ObjectId
 
 export default {
-  query,
-  getById,
-  getByUsername,
-  remove,
+  getByEmail,
   update,
   add,
 }
 
-async function query(filterBy = {}) {
-  try {
-    const criteria = _buildCriteria(filterBy)
-    const collection = await dbService.getCollection('user')
-    let users = await collection.find(criteria).toArray()
+const COLLECTION_NAME = 'user'
 
-    users = users.map((user: any) => {
-      delete user.password
-      return user
-    })
-    return users
-  } catch (err) {
-    console.log('cannot find users', err)
-    throw err
-  }
-}
-
-async function getById(userId: string) {
+async function getByEmail(email: string) {
   try {
-    const collection = await dbService.getCollection('user')
-    const user = await collection.findOne({ _id: ObjectId(userId) })
-    user && delete user.password
+    const collection = await dbService.getCollection(COLLECTION_NAME)
+
+    const user = await collection.findOne({ email })
+
     return user
   } catch (err) {
-    console.log(`while finding user ${userId}`, err)
-    throw err
-  }
-}
-async function getByUsername(userName: string) {
-  try {
-    const collection = await dbService.getCollection('user')
-    const user = await collection.findOne({ userName })
-    return user
-  } catch (err) {
-    console.log(`while finding user ${userName}`, err)
-    throw err
-  }
-}
-
-async function remove(userId: string) {
-  try {
-    const collection = await dbService.getCollection('user')
-    await collection.deleteOne({ _id: ObjectId(userId) })
-  } catch (err) {
-    console.log(`cannot remove user ${userId}`, err)
+    console.error(err)
     throw err
   }
 }
@@ -65,27 +28,22 @@ async function update(user: any) {
       ...user,
       _id: ObjectId(user._id),
     }
-    const collection = await dbService.getCollection('user')
+    const collection = await dbService.getCollection(COLLECTION_NAME)
     await collection.updateOne({ _id: userToSave._id }, { $set: userToSave })
     return userToSave
   } catch (err) {
-    console.log(`cannot update user ${user._id}`, err)
+    console.error(err)
     throw err
   }
 }
 
 async function add(user: any) {
   try {
-    const collection = await dbService.getCollection('user')
+    const collection = await dbService.getCollection(COLLECTION_NAME)
     await collection.insertOne(user)
     return user
   } catch (err) {
-    console.log('cannot insert user', err)
+    console.error(err)
     throw err
   }
-}
-
-function _buildCriteria(filterBy: any) {
-  const criteria = {}
-  return criteria
 }
