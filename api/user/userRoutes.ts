@@ -4,10 +4,8 @@ import userController from './userController'
 
 const router = express.Router()
 
-router.get('/', userController.getUsers)
-router.get('/:id', userController.getUser)
-router.put('/:id', userController.updateUser)
-router.post('/', userController.addUser)
-router.delete('/:id', userController.deleteUser)
+// router.get('/:email', userController.getUserByEmail)
+// router.put('/:id', userController.updateUser)
+// router.post('/', userController.addUser)
 
 export default router
