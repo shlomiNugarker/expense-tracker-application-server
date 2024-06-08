@@ -44,8 +44,6 @@ async function updateExpense(req: Request, res: Response) {
 async function addExpense(req: Request, res: Response) {
   try {
     const expense = req.body
-    console.log({ expense })
-
     const addeditem = await expenseService.add(expense)
     res.json(addeditem)
   } catch (err) {
@@ -55,7 +53,13 @@ async function addExpense(req: Request, res: Response) {
 }
 async function removeExpense(req: Request, res: Response) {
   try {
-    await expenseService.remove(req.params.id)
+    const { id } = req.params
+    const deletedId = await expenseService.remove(id)
+    if (deletedId) {
+      res.status(200).json({ _id: deletedId })
+    } else {
+      res.status(404).json({ error: 'Expense not found' })
+    }
   } catch (err) {
     res.status(500).send({ err: 'Failed to delete expense' })
   }
