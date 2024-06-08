@@ -1,8 +1,7 @@
-import { WithId, Document } from 'mongodb'
 import authService from './authService'
-import { Request, RequestHandler, Response } from 'express'
+import { Request, Response } from 'express'
 
-import { jwtService } from '../../services/jwtService'
+import userService from '../user/userService'
 
 export default { login, signup, logout }
 
@@ -13,39 +12,31 @@ declare module 'express-session' {
 }
 
 async function login(req: Request, res: Response) {
-  const { userName, password } = req.body
+  const { email, password } = req.body
   try {
-    const user = await authService.login(userName, password)
-    req.session.user = user
+    const user = await authService.login(email, password)
 
-    // jwt:
-    const accessToken = jwtService.createTokens(user)
-    res.cookie('access-token', accessToken, {
-      maxAge: 60 * 1000 * 60 * 24, // 24H  //mil
-      httpOnly: true,
-    })
-
-    res.json(user)
+    res.status(201).json({ user })
   } catch (err) {
-    console.log('Failed to Login ' + err)
+    console.error(err)
     res.status(401).send({ err: 'Failed to Login' })
   }
 }
 
 async function signup(req: Request, res: Response) {
   try {
-    const { userName, password, fullName, isMentor } = req.body
-    const account = await authService.signup(
-      userName,
-      password,
-      fullName,
-      isMentor
-    )
-    const user = await authService.login(userName, password)
-    req.session.user = user
+    const { email, password, fullName } = req.body
+
+    const userFromDB = await userService.getByEmail(email)
+    if (userFromDB) {
+      return res.status(400).json({ msg: 'User already exists' })
+    }
+
+    await authService.signup(email, password, fullName)
+    const user = await authService.login(email, password)
     res.json(user)
   } catch (err) {
-    console.log('Failed to signup ' + err)
+    console.error(err)
     res.status(500).send({ err: 'Failed to signup' })
   }
 }
@@ -56,6 +47,7 @@ async function logout(req: Request, res: Response) {
     res.clearCookie('access-token')
     res.send({ msg: 'Logged out successfully' })
   } catch (err) {
+    console.error(err)
     res.status(500).send({ err: 'Failed to logout' })
   }
 }
