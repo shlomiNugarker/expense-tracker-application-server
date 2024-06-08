@@ -2,11 +2,11 @@ import { NextFunction, Request, RequestHandler, Response } from 'express'
 
 import { sign, verify } from 'jsonwebtoken'
 
-const createTokens = (user: any) => {
+const createToken = (user: any) => {
   const accessToken = sign(
-    { username: user.userName, id: user._id },
+    { fullName: user.fullName, id: user._id },
     process.env.TOKEN_SECRET as string,
-    { expiresIn: '24h' }
+    { expiresIn: '1h' }
   )
 
   return accessToken
@@ -15,38 +15,34 @@ const createTokens = (user: any) => {
 declare global {
   namespace Express {
     interface Request {
-      authenticated?: boolean
+      user: any
     }
+  }
+}
+
+declare module 'express-session' {
+  interface SessionData {
+    accessToken: string
   }
 }
 
 const validateToken = (req: Request, res: Response, next: NextFunction) => {
-  let cookies: { [key: string]: string } = {}
-
-  const cookiesArray = req.headers.cookie?.split(';')
-  cookiesArray?.forEach((cookie) => {
-    const [key, value] = cookie.trim().split('=')
-    cookies[key] = value
-  })
-
-  // get The "access-token" value:
-  const accessToken = cookies['access-token']
+  const accessToken = req.session.accessToken
+  console.log({ accessToken })
 
   if (!accessToken)
-    return res.status(400).json({ error: 'User not Authenticated!' })
+    return res.status(401).json({ msg: 'No token, authorization denied' })
 
   try {
-    const validToken = verify(accessToken, process.env.TOKEN_SECRET as string)
-    if (validToken) {
-      req.authenticated = true
-      return next()
-    }
+    const decoded = verify(accessToken, process.env.JWT_SECRET as string)
+    req.user = decoded
+    next()
   } catch (err) {
-    return res.status(400).json({ error: err })
+    res.status(401).json({ msg: 'Token is not valid' })
   }
 }
 
 export const jwtService = {
-  createTokens,
+  createToken,
   validateToken,
 }
