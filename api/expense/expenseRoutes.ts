@@ -1,12 +1,15 @@
 import express from 'express'
 import expenseController from './expenseController'
+import { jwtService } from '../../services/jwtService'
 
 const router = express.Router()
 
-router.get('/', expenseController.getExpenses)
-router.get('/:id', expenseController.getExpenseById)
-router.put('/:id', expenseController.updateExpense)
-router.post('/', expenseController.addExpense)
-router.delete('/:id', expenseController.removeExpense)
+const { validateToken } = jwtService
+
+router.get('/', validateToken, expenseController.getExpenses)
+router.get('/:id', validateToken, expenseController.getExpenseById)
+router.put('/:id', validateToken, expenseController.updateExpense)
+router.post('/', validateToken, expenseController.addExpense)
+router.delete('/:id', validateToken, expenseController.removeExpense)
 
 export default router
