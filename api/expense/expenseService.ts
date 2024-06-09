@@ -12,10 +12,10 @@ export default {
 
 const COLLECTION_NAME = 'expense'
 
-async function getExpenses(filterBy = {}) {
+async function getExpenses(userId: string) {
   try {
     const collection = await dbService.getCollection(COLLECTION_NAME)
-    const expenses = collection.find({}).toArray()
+    const expenses = collection.find({ userId }).toArray()
     return expenses
   } catch (err) {
     throw err

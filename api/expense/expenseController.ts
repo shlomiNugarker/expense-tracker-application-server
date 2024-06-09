@@ -11,8 +11,11 @@ export default {
 
 async function getExpenses(req: Request, res: Response) {
   try {
-    const expense = await expenseService.getExpenses()
-    res.json(expense)
+    const { userId } = req.params
+
+    const expenses = await expenseService.getExpenses(userId)
+
+    res.json(expenses)
   } catch (err) {
     console.error(err)
     res.status(401).send({ err: 'Failed to get Expenses' })
@@ -42,8 +45,11 @@ async function updateExpense(req: Request, res: Response) {
 
 async function addExpense(req: Request, res: Response) {
   try {
+    console.log('addd')
+
     const expense = req.body
     const addeditem = await expenseService.add(expense)
+
     res.json(addeditem)
   } catch (err) {
     console.error(err)

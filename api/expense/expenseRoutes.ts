@@ -6,7 +6,7 @@ const router = express.Router()
 
 const { validateToken } = jwtService
 
-router.get('/', validateToken, expenseController.getExpenses)
+router.get('/:userId', validateToken, expenseController.getExpenses)
 router.get('/:id', validateToken, expenseController.getExpenseById)
 router.put('/:id', validateToken, expenseController.updateExpense)
 router.post('/', validateToken, expenseController.addExpense)
