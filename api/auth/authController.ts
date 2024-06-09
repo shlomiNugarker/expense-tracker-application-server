@@ -2,21 +2,18 @@ import authService from './authService'
 import { Request, Response } from 'express'
 
 import userService from '../user/userService'
+import { jwtService } from '../../services/jwtService'
 
 export default { login, signup, logout }
-
-declare module 'express-session' {
-  interface SessionData {
-    user: any
-  }
-}
 
 async function login(req: Request, res: Response) {
   const { email, password } = req.body
   try {
     const user = await authService.login(email, password)
 
-    res.status(201).json({ user })
+    const accessToken = jwtService.createTokens(user)
+
+    res.status(201).json({ user, accessToken })
   } catch (err) {
     console.error(err)
     res.status(401).send({ err: 'Failed to Login' })
@@ -47,7 +44,6 @@ async function logout(req: Request, res: Response) {
     res.clearCookie('access-token')
     res.send({ msg: 'Logged out successfully' })
   } catch (err) {
-    console.error(err)
     res.status(500).send({ err: 'Failed to logout' })
   }
 }

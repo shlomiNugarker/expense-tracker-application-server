@@ -2,47 +2,38 @@ import { NextFunction, Request, RequestHandler, Response } from 'express'
 
 import { sign, verify } from 'jsonwebtoken'
 
-const createToken = (user: any) => {
+const createTokens = (user: any) => {
   const accessToken = sign(
-    { fullName: user.fullName, id: user._id },
+    { id: user._id },
     process.env.TOKEN_SECRET as string,
-    { expiresIn: '1h' }
+    { expiresIn: '24h' }
   )
-
   return accessToken
 }
 
-declare global {
-  namespace Express {
-    interface Request {
-      user: any
-    }
-  }
-}
-
-declare module 'express-session' {
-  interface SessionData {
-    accessToken: string
-  }
-}
-
 const validateToken = (req: Request, res: Response, next: NextFunction) => {
-  const accessToken = req.session.accessToken
-  console.log({ accessToken })
+  const authHeader = req.headers['authorization']
+  const accessToken = authHeader
 
   if (!accessToken)
-    return res.status(401).json({ msg: 'No token, authorization denied' })
+    return res.status(400).json({ error: 'User not Authenticated!' })
 
   try {
-    const decoded = verify(accessToken, process.env.JWT_SECRET as string)
-    req.user = decoded
-    next()
+    verify(accessToken, process.env.TOKEN_SECRET as string, (err, decoded) => {
+      console.log(err)
+
+      if (err) {
+        return res.status(401).json({ message: 'Invalid token' })
+      }
+      next()
+    })
   } catch (err) {
-    res.status(401).json({ msg: 'Token is not valid' })
+    console.error(err)
+    return res.status(400).json({ error: err })
   }
 }
 
 export const jwtService = {
-  createToken,
+  createTokens,
   validateToken,
 }
