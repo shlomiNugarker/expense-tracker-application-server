@@ -5,6 +5,6 @@ const router = express.Router()
 
 router.post('/login', authController.login)
 router.post('/signup', authController.signup)
-router.post('/logout', authController.logout)
+router.delete('/logout', authController.logout)
 
 export default router

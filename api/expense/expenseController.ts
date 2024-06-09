@@ -11,7 +11,6 @@ export default {
 
 async function getExpenses(req: Request, res: Response) {
   try {
-    const { id } = req.params
     const expense = await expenseService.getExpenses()
     res.json(expense)
   } catch (err) {
