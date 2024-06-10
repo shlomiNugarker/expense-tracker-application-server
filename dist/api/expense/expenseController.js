@@ -23,9 +23,11 @@ exports.default = {
 function getExpenses(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const { userId } = req.params;
-            const expenses = yield expenseService_1.default.getExpenses(userId);
-            res.json(expenses);
+            const { userId } = req;
+            if (userId) {
+                const expenses = yield expenseService_1.default.getExpenses(userId);
+                res.json(expenses);
+            }
         }
         catch (err) {
             console.error(err);
@@ -37,7 +39,10 @@ function getExpenseById(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const { id } = req.params;
+            const { userId } = req;
             const expense = yield expenseService_1.default.getById(id);
+            if (userId !== (expense === null || expense === void 0 ? void 0 : expense.userId))
+                return res.status(400).json({ msg: 'Cant get expense' });
             res.json(expense);
         }
         catch (err) {
@@ -49,7 +54,10 @@ function getExpenseById(req, res) {
 function updateExpense(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            const { userId } = req;
             const expense = req.body;
+            if (userId !== expense.userId)
+                return res.status(400).json({ msg: 'Cant get expense' });
             const addeditem = yield expenseService_1.default.update(expense);
             res.json(addeditem);
         }
@@ -62,7 +70,6 @@ function updateExpense(req, res) {
 function addExpense(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            console.log('addd');
             const expense = req.body;
             const addeditem = yield expenseService_1.default.add(expense);
             res.json(addeditem);
@@ -76,6 +83,7 @@ function addExpense(req, res) {
 function removeExpense(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            const { userId } = req;
             const { id } = req.params;
             const deletedId = yield expenseService_1.default.remove(id);
             if (deletedId) {

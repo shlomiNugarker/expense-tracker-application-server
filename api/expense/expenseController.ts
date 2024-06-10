@@ -1,5 +1,6 @@
+import { CustomRequest } from '../../services/jwtService'
 import expenseService from './expenseService'
-import { Request, Response } from 'express'
+import { Response } from 'express'
 
 export default {
   getExpenses,
@@ -9,22 +10,29 @@ export default {
   removeExpense,
 }
 
-async function getExpenses(req: Request, res: Response) {
+async function getExpenses(req: CustomRequest, res: Response) {
   try {
-    const { userId } = req.params
+    const { userId } = req
 
-    const expenses = await expenseService.getExpenses(userId)
-
-    res.json(expenses)
+    if (userId) {
+      const expenses = await expenseService.getExpenses(userId)
+      res.json(expenses)
+    }
   } catch (err) {
     console.error(err)
     res.status(401).send({ err: 'Failed to get Expenses' })
   }
 }
-async function getExpenseById(req: Request, res: Response) {
+async function getExpenseById(req: CustomRequest, res: Response) {
   try {
     const { id } = req.params
+    const { userId } = req
+
     const expense = await expenseService.getById(id)
+
+    if (userId !== expense?.userId)
+      return res.status(400).json({ msg: 'Cant get expense' })
+
     res.json(expense)
   } catch (err) {
     console.error(err)
@@ -32,9 +40,14 @@ async function getExpenseById(req: Request, res: Response) {
   }
 }
 
-async function updateExpense(req: Request, res: Response) {
+async function updateExpense(req: CustomRequest, res: Response) {
   try {
+    const { userId } = req
     const expense = req.body
+
+    if (userId !== expense.userId)
+      return res.status(400).json({ msg: 'Cant get expense' })
+
     const addeditem = await expenseService.update(expense)
     res.json(addeditem)
   } catch (err) {
@@ -43,10 +56,8 @@ async function updateExpense(req: Request, res: Response) {
   }
 }
 
-async function addExpense(req: Request, res: Response) {
+async function addExpense(req: CustomRequest, res: Response) {
   try {
-    console.log('addd')
-
     const expense = req.body
     const addeditem = await expenseService.add(expense)
 
@@ -56,8 +67,9 @@ async function addExpense(req: Request, res: Response) {
     res.status(401).send({ err: 'Failed to add expense' })
   }
 }
-async function removeExpense(req: Request, res: Response) {
+async function removeExpense(req: CustomRequest, res: Response) {
   try {
+    const { userId } = req
     const { id } = req.params
     const deletedId = await expenseService.remove(id)
     if (deletedId) {
