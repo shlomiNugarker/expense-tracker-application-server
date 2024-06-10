@@ -8,7 +8,7 @@ const expenseController_1 = __importDefault(require("./expenseController"));
 const jwtService_1 = require("../../services/jwtService");
 const router = express_1.default.Router();
 const { validateToken } = jwtService_1.jwtService;
-router.get('/expenses/:userId', validateToken, expenseController_1.default.getExpenses);
+router.get('/', validateToken, expenseController_1.default.getExpenses);
 router.get('/:id', validateToken, expenseController_1.default.getExpenseById);
 router.put('/:id', validateToken, expenseController_1.default.updateExpense);
 router.post('/', validateToken, expenseController_1.default.addExpense);

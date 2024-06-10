@@ -1,6 +1,14 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express'
 
-import { sign, verify } from 'jsonwebtoken'
+import { JwtPayload, sign, verify } from 'jsonwebtoken'
+
+export interface CustomRequest extends Request {
+  userId?: string
+}
+
+interface ExtendedJwt extends JwtPayload {
+  id: string
+}
 
 const createTokens = (user: any) => {
   const accessToken = sign(
@@ -11,7 +19,11 @@ const createTokens = (user: any) => {
   return accessToken
 }
 
-const validateToken = (req: Request, res: Response, next: NextFunction) => {
+const validateToken = (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction
+) => {
   const authHeader = req.headers['authorization']
   const accessToken = authHeader
 
@@ -21,10 +33,12 @@ const validateToken = (req: Request, res: Response, next: NextFunction) => {
   try {
     verify(accessToken, process.env.TOKEN_SECRET as string, (err, decoded) => {
       console.log(err)
-
       if (err) {
         return res.status(401).json({ message: 'Invalid token' })
       }
+
+      // const extendedJwt: ExtendedJwt = decoded
+      req.userId = (decoded as ExtendedJwt).id
       next()
     })
   } catch (err) {
