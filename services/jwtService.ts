@@ -37,7 +37,6 @@ const validateToken = (
         return res.status(401).json({ message: 'Invalid token' })
       }
 
-      // const extendedJwt: ExtendedJwt = decoded
       req.userId = (decoded as ExtendedJwt).id
       next()
     })
