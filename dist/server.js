@@ -12,6 +12,7 @@ const cors_1 = __importDefault(require("cors"));
 const expenseRoutes_1 = __importDefault(require("./api/expense/expenseRoutes"));
 const authRoutes_1 = __importDefault(require("./api/auth/authRoutes"));
 const userRoutes_1 = __importDefault(require("./api/user/userRoutes"));
+const socketService_1 = __importDefault(require("./services/socketService"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const http = require('http').createServer(app);
@@ -42,6 +43,7 @@ else {
 app.use('/api/auth', authRoutes_1.default);
 app.use('/api/user', userRoutes_1.default);
 app.use('/api/expense', expenseRoutes_1.default);
+socketService_1.default.connectSockets(http, session);
 app.get('/**', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, 'public', 'index.html'));
 });

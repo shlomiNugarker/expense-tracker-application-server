@@ -30,6 +30,7 @@
     "express-session": "^1.17.3",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^4.17.2",
-    "nodemon": "^2.0.22"
+    "nodemon": "^2.0.22",
+    "socket.io": "^4.7.5"
   }
 }
