@@ -9,15 +9,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const MongoClient = require('mongodb').MongoClient;
+const mongodb_1 = require("mongodb");
 exports.default = { getCollection };
 const dbName = 'expense_tracker_db';
-var dbConn = null;
+let dbConn = null;
 function getCollection(collectionName) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const db = yield connect();
-            const collection = yield db.collection(collectionName);
+            const collection = db.collection(collectionName);
             return collection;
         }
         catch (err) {
@@ -30,10 +30,7 @@ function connect() {
         if (dbConn)
             return dbConn;
         try {
-            const client = yield MongoClient.connect(`mongodb+srv://shlomin1231:${process.env.DB_PASSWORD}@cluster0.ysm5t.mongodb.net/social_network_db?retryWrites=true&w=majority`, {
-                useNewUrlParser: true,
-                useUnifiedTopology: true,
-            });
+            const client = yield mongodb_1.MongoClient.connect(`mongodb+srv://shlomin1231:${process.env.DB_PASSWORD}@cluster0.ysm5t.mongodb.net/social_network_db?retryWrites=true&w=majority`);
             const db = client.db(dbName);
             dbConn = db;
             return db;

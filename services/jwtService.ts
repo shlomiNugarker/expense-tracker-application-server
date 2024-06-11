@@ -1,4 +1,4 @@
-import { NextFunction, Request, RequestHandler, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 
 import { JwtPayload, sign, verify } from 'jsonwebtoken'
 
@@ -32,7 +32,7 @@ const validateToken = (
 
   try {
     verify(accessToken, process.env.TOKEN_SECRET as string, (err, decoded) => {
-      console.log(err)
+      // console.log(err)
       if (err) {
         return res.status(401).json({ message: 'Invalid token' })
       }

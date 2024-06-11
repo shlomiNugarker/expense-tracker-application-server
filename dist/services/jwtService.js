@@ -13,7 +13,7 @@ const validateToken = (req, res, next) => {
         return res.status(400).json({ error: 'User not Authenticated!' });
     try {
         (0, jsonwebtoken_1.verify)(accessToken, process.env.TOKEN_SECRET, (err, decoded) => {
-            console.log(err);
+            // console.log(err)
             if (err) {
                 return res.status(401).json({ message: 'Invalid token' });
             }
